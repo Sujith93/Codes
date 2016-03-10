@@ -1,0 +1,206 @@
+
+######################################################################################
+
+
+#############   UI #################
+
+
+
+output with the icons
+
+UI Code
+-----------------------------
+library(shiny)
+library(plotly)
+# Define UI for dataset viewer application
+shinyUI(fluidPage(
+  headerPanel("Healthcare Analytics"),
+  
+  tags$body(
+    background="heathcare-technology.jpg"
+    
+  ),
+  
+  img(src='myImage.jpg', align = "right"),theme = "svs.css",
+  
+  
+  # Application title
+  titlePanel("       Reactivity"),
+  
+  
+  sidebarLayout(
+    sidebarPanel(
+      textInput("caption", "Caption:", "Data Summary"),
+      
+      numericInput("obs", "Number of observations to view:", 10),
+      selectInput("dataset", "Choose a dataset:", 
+                  choices = c("intervention_data", "patient_data", "p3")),
+      
+      
+      textInput("PatientID", label = h3("Patient-ID"), value = " "),
+      selectInput("Delivery_mode","Select the Type of Mode",c("Email"="Email", 
+                                                              "Phone"="Phone",
+                                                              "F2F"="F2F",
+                                                              "SMS" = "SMS",
+                                                              "Chat" = "Chat"
+      )),
+      
+      
+      textInput("Intervention_intensity", label = h3("Intervention Intensity"), value = " "),
+      submitButton("Submit")
+    ),
+    
+    
+    
+    
+    mainPanel(
+      h3(textOutput("caption", container = span)),
+      
+      
+      
+      tabsetPanel(
+        tabPanel("summary",verbatimTextOutput("summary")),
+        tabPanel("Time Series",verbatimTextOutput('value'),imageOutput("image2",height = 100, width = 200)),
+        tabPanel("meanf-Forecast Series",verbatimTextOutput('value1')),
+        tabPanel("Plot",plotOutput("plot1"),verbatimTextOutput("info"))
+      
+        
+      )
+#         ui <- basicPage(
+#           plotOutput("plot1", click = "plot_click"),
+#           verbatimTextOutput("info")
+#         )
+#         
+        
+        #tableOutput("view")
+      )
+    )))
+
+############# Server #################
+----------------------
+server code
+-----------------------
+library(shiny)
+library(datasets)
+library(png)
+
+intervention_data <-read.csv ("intervention_data.csv")
+patient_data<-read.csv("Patient_data.csv")
+p3<-read.csv("p3.csv")
+subs<-p3[,c(2,8,9)]
+
+
+minx <- min(subs$Intervention.Intensity)
+maxx <- max(subs$Intervention.Intensity)
+
+
+# Define server logic required to summarize and view the selected
+# dataset
+shinyServer(function(input, output) {
+  
+  datasetInput <- reactive({
+    switch(input$dataset,
+           "intervention_data"=intervention_data, 
+           "patient_data" =patient_data,
+           "p3"=p3)
+  })
+  funct<-reactive( {
+    data<-data.frame(Patient.ID=input$PatientID,Delivery.Mode = input$Delivery_mode,Intervention.Intensity=input$Intervention_intensity)
+    return(data)
+    
+    
+  })
+  funct1<-reactive( {
+    
+    subs<-rbind(subs,funct())
+    return(subs)
+  })
+  
+  output$value <- renderPrint({
+    funct()
+  })
+  
+  output$value1 <- renderPrint({
+    funct1()
+  })
+  #   output$value2 <- renderPrint({
+  #     funct()
+  
+  
+  
+  
+  output$caption <- renderText({
+  
+  })
+  
+  
+  output$summary <- renderPrint({
+    dataset <- datasetInput()
+    summary(dataset)
+  })
+  
+  
+  
+  
+  output$plot1 <- renderPlot({
+    plot(subs$Delivery.Mode, subs$Intervention.Intensity)
+  })
+  
+  output$info <- renderText({
+    paste0("x=", input$plot_click$x, "\ny=", input$plot_click$y)
+  })
+  
+  output$image2 <- renderImage({
+    if (is.null(input$Delivery_mode))
+      return(NULL)
+    
+    if (input$Delivery_mode == "Email") {
+      return(list(
+        src = "C:\\Users\\b.vijaykumar\\Documents\\shiny\\www\\Email.jpg", 
+        contentType = "image/jpeg",
+        alt = "this is Email"
+      ))
+    } else if (input$Delivery_mode == "Phone") {
+      return(list(
+        src = "C:\\Users\\b.vijaykumar\\Documents\\shiny\\www\\Phone.jpg",
+        filetype = "image/jpeg",
+        alt = "phone"
+      ))
+    }
+      
+      else if (input$Delivery_mode == "F2F") {
+        return(list(
+          src = "C:\\Users\\b.vijaykumar\\Documents\\shiny\\www\\F2F.jpg",
+          filetype = "image/jpeg",
+          alt = "this is F2F"
+        ))
+      }
+        
+        else if (input$Delivery_mode == "SMS") {
+          return(list(
+            src = "C:\\Users\\b.vijaykumar\\Documents\\shiny\\www\\SMS.png",
+            filetype = "image/png",
+            alt = "this is SMS"
+          ))
+        }
+          else if (input$Delivery_mode == "Chat") {
+            return(list(
+              src = "C:\\Users\\b.vijaykumar\\Documents\\shiny\\www\\Chat.png",
+              filetype = "image/png",
+              alt = "this is Chat"
+            ))
+      
+      
+            
+          }
+    
+        }, deleteFile = FALSE)
+  }
+)
+  
+######################################################################################
+
+
+#output$view <- renderTable({
+# head(datasetInput(), n = input$obs)
+# })
