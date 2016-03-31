@@ -1,0 +1,34 @@
+library(shiny)
+
+shinyUI(fluidPage(
+
+    headerPanel("Retail Library"),
+    # titlePanel("                          Retail Library"),
+    sidebarLayout(
+        sidebarPanel(
+            
+            selectInput("Input1","Select the State",c("California"="California",
+                                                      "Oregon"="Oregon", 
+                                                      "Washington"="Washington",
+                                                      "Arizona"="Arizona",
+                                                      "Nevada"="Nevada"),selected ="California",selectize = TRUE )
+            
+        ), 
+        
+        mainPanel(
+            
+                tabsetPanel(
+                    #tabPanel("Summary",verbatimTextOutput('contents29')),
+                    tabPanel("Location",plotOutput('contents4'),verbatimTextOutput('contents5')),
+                    tabPanel("Gender",plotOutput('contents2'),verbatimTextOutput('contents3')),
+                    tabPanel("C.MaritalStatus",plotOutput('contents10'),verbatimTextOutput('contents11')),
+                    tabPanel("OrderType",plotOutput('contents6'),verbatimTextOutput('contents7')),
+                    tabPanel("Education",plotOutput('contents12'),verbatimTextOutput('contents13'))))
+            #  tabPanel("EmpStatus",plotOutput('contents14'),verbatimTextOutput('contents15')),
+            # tabPanel("Loyalty",plotOutput('contents16'),verbatimTextOutput('contents17')),
+            # tabPanel("Feedback",plotOutput('contents8'),verbatimTextOutput('contents9')))),
+            # tabPanel("Dep",plotOutput('contents18'),verbatimTextOutput('contents19'))
+    )
+    )
+    )
+          
