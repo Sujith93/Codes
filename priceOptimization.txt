@@ -1,0 +1,24 @@
+proc optmodel;
+
+/* declare sets and parameters*/
+num alpha=0.05;         /* parameter of the price-volume mode */
+num beta=0.1;           /* parameter of the price-volume mode */
+num u_1=15;             /* cost of making product_1 */
+num u_2=20;             /* cost of making product_2 */
+num c_1=100;            /*fixed cost of making product_1 */
+num c_2=125;            /*fixed cost of making product_2 */
+num exposure=1000;
+
+/* declare variables */
+var p>=0;
+var q>=0;
+impvar v_1=exposure*exp(-alpha*p)/(exp(-alpha*p)+exp(-beta*q)+1);
+impvar v_2=exposure*exp(-beta*q)/(exp(-alpha*p)+exp(-beta*q)+1);
+
+/* declare constraints */
+con v_1>=130;
+con v_2>=20;
+max profit=(p*v_1+q*v_2)-(u_1*v_1+c_1+u_2*v_2+c_2);
+solve;
+print p q v_1 v_2 profit;
+quit;
